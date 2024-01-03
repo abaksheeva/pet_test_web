@@ -15,5 +15,5 @@ pytest tests
 
 # View the report
 ```bash
-allure serve allure-results
+allure serve
 ```
