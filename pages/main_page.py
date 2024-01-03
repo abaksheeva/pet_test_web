@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from page_objects.base_page import BasePage
+from pages.base_page import BasePage
 
 
 class MainPage(BasePage):
@@ -24,7 +24,7 @@ class MainPage(BasePage):
     @allure.step('Get visible books')
     def get_visible_books(self):
         books_elems = self.driver.find_elements(By.XPATH, self.BOOKS)
-        return [book_elem.text.split('\n') for book_elem in books_elems]
+        return [tuple(book_elem.text.split('\n')) for book_elem in books_elems]
 
     def verify_count_of_books(self, expected_cnt):
         with allure.step(f'Verify count of books on page equals to {expected_cnt}'):
@@ -33,11 +33,11 @@ class MainPage(BasePage):
     def verify_visible_books_are(self, expected_books):
         with allure.step(f'Verify visible books are {expected_books}'):
             text = self.get_visible_books()
-        return expected_books == text
+        assert expected_books == text, f"Expected: {expected_books} but shown on page {text}"
 
     @allure.step('Click clear button')
     def click_clear_button(self):
-        self.driver.find_element(By.CLASS_NAME, self.CLEAR_BTN)
+        self.driver.find_element(By.CLASS_NAME, self.CLEAR_BTN).click()
 
     def verify_clear_button_existence(self, should_exist=True):
         if should_exist:

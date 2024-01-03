@@ -1,31 +1,31 @@
+import allure
 import pytest
 
-from data.test_data import books
-from page_objects.main_page import MainPage
+from data.test_data import books, testcases
+from pages.main_page import MainPage
 
 
+@allure.title("Verify all books present if no filter applied")
 def test_no_filter_shows_all_books(browser):
-    """
-    Verify all books present if no filter applied
-    """
     page = MainPage(browser)
-    page.verify_visible_books_are(books)
+    page.verify_visible_books_are([value for value in books.values()])
 
 
-@pytest.mark.parametrize("text, expected_books, test_case_name",
-                         [
-                             ('x', [books[2]], 'Filtering by name: 1 letter entered'),
-                             ('exp', [books[2]], 'Filtering by first letters of the name'),
-                             ('for', [books[5], books[7]], 'Filtering by letters in the middle of the name'),
-                             ('book', [books[7]], 'Filtering by last letters of the name'),
-                             ('gsdhsdthbsdfbdfabgs', [], 'Filtering by name: no filter results'),
-                         ]
-                         )
-def test_single_result(browser, text, expected_books, test_case_name):
-    """
-    Verify filter functionality
-    """
+@allure.title("Verify filter functionality")
+@pytest.mark.parametrize("testcase", testcases.values(), ids=testcases.keys())
+def test_filter(browser, testcase):
     page = MainPage(browser)
-    page.enter_text(text)
-    page.verify_count_of_books(len(expected_books))
-    page.verify_visible_books_are(expected_books)
+    page.enter_text(testcase[0])
+    page.verify_count_of_books(len(testcase[1]))
+    page.verify_visible_books_are(testcase[1])
+
+
+@allure.title("Verify filter is cleared after clicking x button")
+def test_filter_cleared_by_x_button(browser):
+    page = MainPage(browser)
+    book_name = books.get(1)[0]
+    page.enter_text(book_name)
+    page.verify_count_of_books(1)
+
+    page.click_clear_button()
+    page.verify_count_of_books(len(books))
